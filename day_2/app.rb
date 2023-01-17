@@ -1,17 +1,6 @@
 require_relative 'input'
 
 def scoring(input = nil)
-  # Rock Paper Scissors is a game between two players
-  # Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock
-  # If both players choose the same shape match nul
-  # A for Rock, B for Paper, and C for Scissors
-  # The second column, you reason, must be what you should play in response: X for Rock, Y for Paper, and Z for Scissors
-  # The winner of the whole tournament is the player with the highest score
-  # Your total score is the sum of your scores for each round
-  # The score for a single round is the score for the shape you selected
-  # (1 for Rock, 2 for Paper, and 3 for Scissors) plus the score for the outcome of the round
-  # (0 if you lost, 3 if the round was a draw, and 6 if you won).
-
   move_first = { Rock: :A, Paper: :B, Scissors: :C }
   move_second = { Rock: :X, Paper: :Y, Scissors: :Z }
 
@@ -24,15 +13,8 @@ def scoring(input = nil)
 
   sum_points = fetch_input.split("\n").map { |game| game.split(' ') }.map do |game|
     points = points_ref[game.last.to_sym]
-
-    if dep[game.first.to_sym] == game.last.to_sym
-      points += 3
-    end
-
-    if battle[game.last.to_sym].include?(game.first.to_sym)
-      points += 6
-    end
-
+    points += 3 if dep[game.first.to_sym] == game.last.to_sym
+    points += 6 if battle[game.last.to_sym].include?(game.first.to_sym)
     points
   end.sum
   pp sum_points
@@ -40,8 +22,8 @@ end
 
 def scoring_2(input = nil)
   ending = { X: :loose, Y: :eq, Z: :win }
-  points_ref = { A: 1, B: 2, C: 3}
-  battle = { A: :C, C: :B, B: :A}
+  points_ref = { A: 1, B: 2, C: 3 }
+  battle = { A: :C, C: :B, B: :A }
 
   sum_points = fetch_input.split("\n").map { |game| game.split(' ') }.map do |game|
     points = 0
