@@ -36,20 +36,15 @@ class Folder
     @previous = root ? :root : nil
   end
 
-  def list
-  end
-
-  def previous=(node)
-    @previous = node
-  end
-
   def add_files(files)
     @files << files
   end
 
   def add_folder(folder)
+    pp folder.name
+    pp self.name
     @folders << folder
-    folder.previous= folder
+    @previous = self
   end
 
   def next
@@ -59,32 +54,60 @@ class Folder
   end
 
   def go_in(name)
-    @list.each do |node|
+    cursor = nil
+      @folders.each do |node|
       if node.name == name
-        return node and break
+        cursor = node
+        break
       end
 
       :not_exist
     end
+    cursor
   end
 
   def previous_folder
+    pp self&.name
     if @root
       :you_are_in_the_root_folder
     else
-      previous
+      @previous
     end
   end
 end
 
+class FileS
+  attr_accessor :name, :sizef
+  def initialize(name, sizef)
+    @name = name
+    @sizef = sizef
+  end
+end
 
 root = Folder.new(root: true, name:'root')
+i = FileS.new('i', 584)
+b = FileS.new('b', 29116)
+c = FileS.new('c', 2557)
+root.add_files(i)
+root.add_files(b)
+root.add_files(c)
+
 a = Folder.new( name:'a')
-d = Folder.new( name:'d')
-root.add_folder(a)
-root.add_folder(b)
 e = Folder.new( name:'e')
+
+root.add_folder(a)
 a.add_folder(e)
 
+e = root.go_in('a').go_in('e')
+root = e.previous_folder
 
+pp e.name
+pp root.inspect
+raise
+puts root.files.map(&:sizef).sum
+puts root.folders.map(&:name)
+puts root.files
+f = root.go_in('a')
 puts f.folders.map(&:name)
+e = f.next
+pp e.name
