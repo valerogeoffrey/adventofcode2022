@@ -39,26 +39,18 @@ def scoring(input = nil)
 end
 
 def scoring_2(input = nil)
-
-  move_first = { Rock: :A, Paper: :B, Scissors: :C }
-  move_second = { Rock: :X, Paper: :Y, Scissors: :Z }
-
   ending = { X: :loose, Y: :eq, Z: :win }
-  _win_lost_point = { win: 6, equal: 3, lost: 0 }
   points_ref = { A: 1, B: 2, C: 3}
   battle = { A: :C, C: :B, B: :A}
 
   sum_points = fetch_input.split("\n").map { |game| game.split(' ') }.map do |game|
     points = 0
     move_1 = game.first.to_sym
-    action = game.last.to_sym
-
-    case ending[action]
+    case ending[game.last.to_sym]
     when :loose
       points += points_ref[battle[move_1]]
     when :eq
       points += (points_ref[move_1] + 3)
-
     when :win
       mv = ([:A, :B, :C] - [battle[move_1]] - [move_1]).first
       points += (points_ref[mv] + 6)
