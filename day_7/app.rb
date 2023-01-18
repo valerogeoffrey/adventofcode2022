@@ -1,17 +1,18 @@
+# frozen_string_literal: true
+
 require_relative 'input'
 require 'ostruct'
 
-def sys(input = nil)
-  file = File.open("input.txt")
+def sys(_input = nil)
+  file = File.open('input.txt')
 
-  cd_x = []
-  dir_x = []
+  cd_x   = []
+  dir_x  = []
   cursor = Folder.new(root: true, name: 'root')
   file.readlines.map(&:chomp).each do |line|
-
     cursor = cursor.go_back_to_root if line == '$ cd /'
 
-    if line.include?("$ cd") && line != '$ cd /'
+    if line.include?('$ cd') && line != '$ cd /'
       if line[5 .. line.size] == '..'
         cursor = cursor.previous_folder
       else
@@ -20,7 +21,7 @@ def sys(input = nil)
       end
     end
 
-    if line.include?("dir")
+    if line.include?('dir')
       dir_x << line[4 .. line.size]
       folder = Folder.new(name: line[4 .. line.size])
       cursor.add_folder(folder)
@@ -31,33 +32,34 @@ def sys(input = nil)
       cursor.add_files(ff)
     end
   end
-
-  pp 'dir_x.size'
-  pp dir_x.size
-  pp cd_x.size
-  data = {}
+  data   = {}
   cursor = cursor.go_back_to_root
 
-  pp "start"
+  ll = cursor.list_all_folders.flatten
+  pp ll.size
+  return ll.uniq
+
+  #pp ll
+  pp 'start'
   pp "DATA --> #{data}"
   pp "in cursor -> #{cursor.name} // prev --> #{cursor.previous_folder?} // has_previous? #{cursor.previous_folder?}"
   data['rrr'] = cursor.files_size.sum
 
   tt = dig_folder(cursor, data)
   tt.delete('root')
-  pp tt
-  pp tt.values.select{|v| v < 100_000}.sum
+  #pp tt
+  #pp tt.values.select { |v| v < 100_000 }.sum
 end
 
 def dig_folder(cursor, data)
   cursor.folders.each do |cursor|
-    data[cursor.path_name] = 0 if data[cursor.path_name].nil?
-    data[cursor.previous.path_name] = 0 if data[cursor.previous.path_name].nil?
-    data[cursor.path_name] = data[cursor.path_name] + cursor.files_size.sum
-    data['rrr'] = data['rrr'] + cursor.files_size.sum
+    data[cursor.path]          = 0 if data[cursor.path].nil?
+    data[cursor.previous.path] = 0 if data[cursor.previous.path].nil?
+    data[cursor.path]          = data[cursor.path] + cursor.files_size.sum
+    data['rrr']                     = data['rrr'] + cursor.files_size.sum
 
-    if cursor.previous_folder? && cursor.previous.path_name != 'root'
-      data[cursor.previous.path_name] = data[cursor.previous.path_name] + data[cursor.path_name]
+    if cursor.previous_folder? && cursor.previous.path != 'root'
+      data[cursor.previous.path] = data[cursor.previous.path] + data[cursor.path]
     end
 
     return data unless cursor.folders?
@@ -69,27 +71,64 @@ end
 
 def sys_2(input = nil) end
 
+def sys_response
+  file_path = File.expand_path("input.txt")
+  input     = File.read(file_path)
+
+  directories = Hash.new { |h, k| h[k] = [] }
+
+  current_dir = []
+
+  input.each_line do |line|
+    case line.split
+    in [/\d+/ => size, _file]
+      directories[current_dir.clone] << size.to_i
+    in ["dir", /\w+/ => dir]
+      new_dir = current_dir.clone.append(dir)
+      directories[current_dir.clone] << directories[new_dir]
+    in ["$", "cd", ".."]
+      current_dir.pop
+    in ["$", "cd", /.+/ => dir]
+      current_dir << dir
+    else
+      # ls
+    end
+  end
+  dirs = directories.map { |k, v| "root/#{k[1..k.size].join('/')}" }.flatten
+
+  pp dirs.size
+  return dirs.uniq
+  #pp dirs
+
+  directories.map { |_k, v| v.flatten.sum }
+             .select { |size| size <= 100_000 }
+             .sum
+end
+
 class String
   def numeric?
-    Float(self) != nil rescue false
+    !Float(self).nil?
+  rescue StandardError
+    false
   end
 end
 
 class Folder
-  attr_accessor :root, :previous, :name, :files, :folders, :end, :path_name
+  attr_accessor :root, :previous, :name, :files, :folders, :end, :path
 
   def initialize(root: false, name:)
-    @root = root
-    @name = name
-    @folders = []
-    @files = []
-    @previous = root ? :root : nil
-    @path_name = root ? 'root' : nil
-    @end = true
+    @@list_all_folders = []
+    @root      = root
+    @name      = name
+    @folders   = []
+    @files     = []
+    @previous  = root ? :root : nil
+    @path = root ? 'root' : nil
+    @end       = true
   end
 
-  def previous_path_name
-    previous? ? previous_folder.path_name : path_name
+  def previous_path
+    previous? ? previous_folder.path : path
   end
 
   def add_files(files)
@@ -98,9 +137,9 @@ class Folder
 
   def add_folder(folder)
     @folders << folder
-    @end = false
-    folder.previous = self
-    folder.path_name = "#{path_name}/#{folder.name}"
+    @end             = false
+    folder.previous  = self
+    folder.path = "#{path}/#{folder.name}"
   end
 
   def next
@@ -140,6 +179,15 @@ class Folder
     folders.map(&:name)
   end
 
+  def list_all_folders
+    return @@list_all_folders if folders.size == 0
+    @@list_all_folders << folders.map(&:path)
+    folders.each do |folder|
+      folder.list_all_folders
+    end
+    @@list_all_folders
+  end
+
   def info
     pp name
     pp list_files
@@ -159,11 +207,11 @@ class Folder
   end
 
   def files?
-    files.size > 0
+    !files.empty?
   end
 
   def folders?
-    folders.size > 0
+    !folders.empty?
   end
 
   def files_size
@@ -175,7 +223,7 @@ class FileS
   attr_accessor :name, :sizef
 
   def initialize(name, sizef)
-    @name = name
+    @name  = name
     @sizef = sizef
   end
 
@@ -189,15 +237,17 @@ class FileS
 end
 
 pp 'sys'
-sys
+d1 = sys
 pp 'sys_response'
-#sys_response
+d2 = sys_response
+
+pp d2 - d1
 
 root = Folder.new(root: true, name: 'root')
-a = Folder.new(name: 'a')
-e = Folder.new(name: 'e')
-x = Folder.new(name: 'x')
-z = Folder.new(name: 'z')
+a    = Folder.new(name: 'a')
+e    = Folder.new(name: 'e')
+x    = Folder.new(name: 'x')
+z    = Folder.new(name: 'z')
 
 root.add_folder(a)
 a.add_folder(e)
@@ -210,7 +260,7 @@ pp cursor.name
 cursor = cursor.go_back_to_root
 pp cursor.name
 
-#pp a.previous_folder
+# pp a.previous_folder
 raise('END')
 
 puts root.files.map(&:sizef).sum
