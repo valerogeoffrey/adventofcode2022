@@ -45,6 +45,7 @@ end
 
 class Map
   attr_accessor :maps, :coords
+  attr_reader :direction, :head, :tail
 
   def initialize(input = nil)
     @input  = input
@@ -53,6 +54,10 @@ class Map
     @maps   = []
     @coords = []
     @cursor = { x: 0, y: 0 }
+    @direction = nil
+
+    @coords << @tail.clone
+
 
   end
 
@@ -72,6 +77,8 @@ class Map
   end
 
   def move(direction, value)
+
+    @direction = direction
     case direction
     when 'L' then move_left(value)
     when 'R' then move_right(value)
@@ -83,6 +90,8 @@ class Map
   end
 
   def update_tail_position
+
+    tmp_tail = @tail.dup
     # All combination position
     # 1 ) si meme colone / ligne, ecart > 1
     # Tail se positionnera meme ligne / colonne a pour reduire ecard a 0
@@ -93,7 +102,63 @@ class Map
     # un pattern se déssine
     # ( right / left / up / down ) moove de 1 ou -1 dans la meme direction
     # ()
-    @coords << @tail unless @coords.include? @tail
+
+    if direction == 'R'
+
+      if ytail == yhead
+        tmp_tail[:x]= xtail+1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+
+      if ytail+1 == yhead
+        tmp_tail[:x]= xtail+1
+        tmp_tail[:y]= ytail+1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+
+      if (xtail+2 == xhead) && (ytail-1 == yhead)
+        tmp_tail[:x]= xtail-1
+        tmp_tail[:y]= ytail-1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+
+    end
+
+    if direction == 'U'
+      if (ytail+2 == yhead && xhead == xtail+1)
+        tmp_tail[:x]= xtail+1
+        tmp_tail[:y]= ytail+1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+
+      if (ytail+2 == yhead && xhead == xtail)
+        tmp_tail[:y]= ytail+1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+    end
+
+    if direction == 'D'
+      if (xtail+1 == xhead) && (ytail-2 == yhead)
+        tmp_tail[:x]= xtail-1
+        tmp_tail[:y]= ytail-1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+
+      if (ytail-2 == yhead) && (xtail == xhead)
+        tmp_tail[:y]= ytail-1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+    end
+
+    if direction == 'L'
+      if (xtail-2 == xhead)
+        tmp_tail[:x]= xtail-1
+        @coords << tmp_tail unless @coords.include? tmp_tail
+      end
+    end
+
+    @tail= tmp_tail
+    @coords
   end
 
   def tail_need_update?
@@ -109,6 +174,10 @@ class Map
   end
 
   def head_pos() [@head[:x], @head[:y]] end
+  def xhead() @head[:x] end
+  def yhead() @head[:y] end
+  def ytail() @tail[:y] end
+  def xtail() @tail[:x] end
   def tail_pos() [@tail[:x], @tail[:y]] end
   def tail_right() [@tail[:x]+1, @tail[:y]] end
   def tail_left() [@tail[:x]-1, @tail[:y]] end
@@ -129,22 +198,26 @@ class Map
 
   def move_left(value)
     value.times do |_|
+
+      if @head[:x] - 1 == 0
+      end
+
       @head[:x] = @head[:x] - 1
-      @coords << @head unless @coords.include? @head
+      update_tail_position if tail_need_update?
     end
   end
 
   def move_up(value)
     value.times do |_|
       @head[:y] = @head[:y] + 1
-      @coords << @head unless @coords.include? @head
+      update_tail_position if tail_need_update?
     end
   end
 
   def move_down(value)
     value.times do |_|
       @head[:y] = @head[:y] - 1
-      @coords << @head unless @coords.include? @head
+      update_tail_position if tail_need_update?
     end
   end
 
