@@ -3,75 +3,83 @@ describe App do
   describe 'map' do
     it 'initial state' do
       m = Map.new(['R 1']).process
-      expect(m.coords).to eql([{x:0,y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}])
     end
-    # R U
+    # RU
     it 'diagonal_up_right no moove' do
       m = Map.new(['R 1', 'U 1']).process
-      expect(m.coords).to eql([{x:0,y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}])
     end
-
-    # R D
+    # RD
     it 'diagonal_up_right no moove' do
       m = Map.new(['R 1', 'D 1']).process
-      expect(m.coords).to eql([{x:0,y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}])
     end
-
-    # L U
+    # LU
     it 'diagonal_up_right no moove' do
       m = Map.new(['L 1', 'U 1']).process
-      expect(m.coords).to eql([{x:0,y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}])
     end
-
-    # L D
+    # LD
     it 'diagonal_up_right no moove' do
       m = Map.new(['L 1', 'D 1']).process
-      expect(m.coords).to eql([{x:0,y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}])
     end
 
-    # R U R
-    it 'right up right -> diag up right' do
+    # RUR
+    it 'right up right -> diag right up ' do
       m = Map.new(['R 1', 'U 1','R 1']).process
-      expect(m.coords).to eql([{x:0,y:0}, {x:1,y:1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>1}])
     end
-    # R U U
-    it 'righ up up -> diag up right' do
+    # RUU
+    it 'righ up up -> diag right up ' do
       m = Map.new(['R 1', 'U 1','U 1']).process
-      expect(m.coords).to eql([{x:0,y:0}, {x:1,y:1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>1}])
     end
 
-    # R D R
-    it 'right down right -> diag down right' do
+    # RDR
+    it 'right down right -> diag right down ' do
       m = Map.new(['R 1', 'D 1','R 1']).process
-      expect(m.coords).to eql([{x:0,y:0}, {x:-1,y:-1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>-1}])
     end
-    # R D D
+    # RDD
     it 'righ down down -> diag righ down' do
       m = Map.new(['R 1', 'D 1', 'D 1']).process
-      expect(m.coords).to eql([{x:0,y:0}, {x:-1,y:-1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>-1}])
+    end
+    # LUL
+    it 'left up left -> diag left up ' do
+      m = Map.new(['L 1', 'U 1','L 1']).process
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>-1, :y=>1}])
+    end
+    # LUU
+    it 'left up up -> diag left up ' do
+      m = Map.new(['L 1', 'U 1','U 1']).process
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>-1, :y=>1}])
+    end
+    # LDL
+    it 'left down left -> diag left down ' do
+      m = Map.new(['L 1', 'D 1','L 1']).process
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>-1, :y=>-1}])
+    end
+    # LDD
+    it 'left down down -> diag left down' do
+      m = Map.new(['L 1', 'D 1', 'D 1']).process
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>-1, :y=>-1}])
     end
 
-    it 'do not reach negative value if origin reach by left' do
-      m = Map.new(['R 3', 'L 3']).process
-      expect(m.head).to eql({x:0,y:0})
-    end
-    it 'go in other sens if reach origin' do
+    it 'can reach negative value on horizontal' do
       m = Map.new(['R 3', 'L 4']).process
-      expect(m.head).to eql({x:1,y:0})
+      expect(m.head).to eql({x:-1,y:0})
     end
-
-    it 'do not reach negative value if origin reach by down' do
-      m = Map.new(['D 1']).process
-      expect(m.head).to eql({x:0,y:1})
-    end
-    it 'go to up if reach origin by down' do
-      m = Map.new(['D 3']).process
-      expect(m.head).to eql({x:1,y:3})
+    it 'can reach negative value on vertical' do
+      m = Map.new(['U 3', 'D 4']).process
+      expect(m.head).to eql({x:0,y:-1})
     end
 
     it 'right multiple' do
       m = Map.new(['R 2']).process
-      expect(m.coords).to eql([{x:0,y:0},{x:1, y:0}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>0}])
     end
     it 'left multiple' do
       m = Map.new(['R 3','L 2']).process
@@ -79,25 +87,65 @@ describe App do
     end
     it 'up multiple' do
       m = Map.new(['U 2']).process
-      expect(m.coords).to eql([{x:0,y:0},{x:0, y:1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>0, :y=>1}])
     end
     it 'down multiple' do
       m = Map.new(['D 2']).process
-      expect(m.coords).to eql([{x:0,y:0},{x:0, y:-1}])
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>0, :y=>-1}])
     end
 
     it'test' do
-      data = 'R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2'.split("\n")
-
-      m = Map.new(data).process
+      input = ["R 4", "U 4", "L 3", "D 1", "R 4", "D 1", "L 5", "R 2"]
+      res = %w(10, 20, 30, 41, 42, 43, 34, 24, 33, 43, 32, 22, 12)
+      m = Map.new(input).process
       expect(m.coords.size).to eql(13)
+    end
+  end
+
+  describe 'map2' do
+    it'test R2' do
+      input = ["R 2"]
+      m = Map2.new(input).process
+      expect(m.tails[0][:x]).to eq 1
+      expect(m.tailsprev[0][:x]).to eq 0
+    end
+
+    it'test R3' do
+      input = ["R 3"]
+      m = Map2.new(input).process
+      expect(m.tails[0][:x]).to eq 2
+      expect(m.tailsprev[0][:x]).to eq 1
+    end
+
+    it'test R4' do
+      input = ["R 4"]
+      m = Map2.new(input).process
+      expect(m.tails[0][:x]).to eq 3
+      expect(m.tailsprev[0][:x]).to eq 2
+
+      expect(m.tails[1][:x]).to eq 2
+      expect(m.tailsprev[1][:x]).to eq 1
+
+      expect(m.tails[2][:x]).to eq 1
+      expect(m.tailsprev[2][:x]).to eq 0
+    end
+
+    it'test R4 U1' do
+      input = ["R 4", "U 1"]
+      m = Map2.new(input).process
+      expect(m.tails[0][:x]).to eq 4
+      expect(m.tails[0][:y]).to eq 0
+
+      expect(m.head[:x]).to eq 4
+      expect(m.head[:y]).to eq 1
+    end
+
+    it'test R10 U10' do
+      input = ["R 9","U 10"]
+      m = Map3.new(input).process
+      pp 'm.coords.size'
+      pp m.coords.size
+      pp m.tails
     end
   end
 end
