@@ -57,8 +57,6 @@ class Map
     @direction = nil
 
     @coords << @tail.clone
-
-
   end
 
   def process(input = nil)
@@ -125,13 +123,13 @@ class Map
     end
 
     if direction == 'U'
-      if (ytail+2 == yhead && xhead == xtail+1)
+      if ytail + 2 == yhead && xhead == xtail + 1
         tmp_tail[:x]= xtail+1
         tmp_tail[:y]= ytail+1
         @coords << tmp_tail unless @coords.include? tmp_tail
       end
 
-      if (ytail+2 == yhead && xhead == xtail)
+      if ytail + 2 == yhead && xhead == xtail
         tmp_tail[:y]= ytail+1
         @coords << tmp_tail unless @coords.include? tmp_tail
       end
@@ -199,10 +197,12 @@ class Map
   def move_left(value)
     value.times do |_|
 
-      if @head[:x] - 1 == 0
+      if @head[:x] - 1 < 0
+        @direction = 'R'
+        @head[:x] = @head[:x] + 1
+      else
+        @head[:x] = @head[:x] - 1
       end
-
-      @head[:x] = @head[:x] - 1
       update_tail_position if tail_need_update?
     end
   end
@@ -216,7 +216,12 @@ class Map
 
   def move_down(value)
     value.times do |_|
-      @head[:y] = @head[:y] - 1
+      if @head[:y] - 1 < 0
+        @direction = 'U'
+        @head[:y] = @head[:y] + 1
+      else
+        @head[:y] = @head[:y] - 1
+      end
       update_tail_position if tail_need_update?
     end
   end

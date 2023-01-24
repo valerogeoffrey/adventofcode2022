@@ -51,13 +51,22 @@ describe App do
       expect(m.coords).to eql([{x:0,y:0}, {x:-1,y:-1}])
     end
 
-    it 'do not reach negative value if origin reach' do
-      m = Map.new(['R 3', 'L 4']).process
+    it 'do not reach negative value if origin reach by left' do
+      m = Map.new(['R 3', 'L 3']).process
       expect(m.head).to eql({x:0,y:0})
     end
     it 'go in other sens if reach origin' do
-      m = Map.new(['R 3', 'L 5']).process
+      m = Map.new(['R 3', 'L 4']).process
       expect(m.head).to eql({x:1,y:0})
+    end
+
+    it 'do not reach negative value if origin reach by down' do
+      m = Map.new(['D 1']).process
+      expect(m.head).to eql({x:0,y:1})
+    end
+    it 'go to up if reach origin by down' do
+      m = Map.new(['D 3']).process
+      expect(m.head).to eql({x:1,y:3})
     end
 
     it 'right multiple' do
@@ -65,8 +74,8 @@ describe App do
       expect(m.coords).to eql([{x:0,y:0},{x:1, y:0}])
     end
     it 'left multiple' do
-      m = Map.new(['L 2']).process
-      expect(m.coords).to eql([{x:0,y:0},{x:-1, y:0}])
+      m = Map.new(['R 3','L 2']).process
+      expect(m.coords).to eql([{:x=>0, :y=>0}, {:x=>1, :y=>0}, {:x=>2, :y=>0}])
     end
     it 'up multiple' do
       m = Map.new(['U 2']).process
