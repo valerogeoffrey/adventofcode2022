@@ -5,9 +5,23 @@ class App
   def rope_1(_input = nil)
 
     file_path = File.expand_path("../input.txt", __FILE__)
-    file      = File.open(file_path)
+    file = File.open(file_path)
 
     map = Map.new
+    file.readlines.map(&:chomp).each_with_index do |line, y|
+      direction, value = line.split(' ')
+      map.move(direction, value.to_i)
+    end
+
+    pp map.coords.size
+  end
+
+  def rope_2(_input = nil)
+
+    file_path = File.expand_path("../input_full.txt", __FILE__)
+    file = File.open(file_path)
+
+    map = Map3.new
     file.readlines.map(&:chomp).each_with_index do |line, y|
       direction, value = line.split(' ')
       map.move(direction, value.to_i)
@@ -22,15 +36,15 @@ class Map3
   attr_reader :direction, :head, :tails
 
   def initialize(input = nil)
-    @input     = input
-    @head      = { x: 0, y: 0 }
-    @tails     = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
-                  { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
-                  { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }
+    @input = input
+    @head = { x: 0, y: 0 }
+    @tails = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+              { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+              { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }
     ]
-    @maps      = []
-    @coords    = []
-    @cursor    = { x: 0, y: 0 }
+    @maps = []
+    @coords = []
+    @cursor = { x: 0, y: 0 }
     @direction = nil
 
     add_coord(@tails[0].dup)
@@ -64,16 +78,18 @@ class Map3
   end
 
   def update_tail_position(index)
-    tmp_tail     = @tails[index].dup
-    ytail        = @tails[index][:y]
-    xtail        = @tails[index][:x]
-    yhead        = index == 0 ? @head[:y] : @tails[index - 1][:y]
-    xhead        = index == 0 ? @head[:x] : @tails[index - 1][:x]
+    tmp_tail = @tails[index].dup
 
-    tmp_tail[:y] = ytail + 1 if xhead == xtail && yhead == ytail + 1
-    tmp_tail[:y] = ytail - 1 if xhead == xtail && yhead == ytail - 1
-    tmp_tail[:x] = xtail - 1 if yhead == ytail && xhead == xtail - 1
-    tmp_tail[:x] = xtail + 1 if yhead == ytail && xhead == xtail + 1
+    xtail = @tails[index][:x]
+    ytail = @tails[index][:y]
+
+    xhead = index == 0 ? @head[:x] : @tails[index - 1][:x]
+    yhead = index == 0 ? @head[:y] : @tails[index - 1][:y]
+
+    tmp_tail[:x] = xtail - 1 if yhead == ytail && xhead == xtail - 2
+    tmp_tail[:x] = xtail + 1 if yhead == ytail && xhead == xtail + 2
+    tmp_tail[:y] = ytail + 1 if xhead == xtail && yhead == ytail + 2
+    tmp_tail[:y] = ytail - 1 if xhead == xtail && yhead == ytail - 2
 
     if xhead == xtail + 2 && yhead == ytail + 1 ||
       xhead == xtail + 1 && yhead == ytail + 2 ||
@@ -103,13 +119,14 @@ class Map3
       tmp_tail[:y] = ytail - 1
     end
 
+    add_coord(tmp_tail) if index == 8
     @tails[index] = tmp_tail
     @coords
   end
 
   def tail_need_update?(index)
     head_pos = index == 0 ? head_pos_ : tail_pos(index - 1)
-    status   = !(head_pos == tail_pos(index) ||
+    status = !(head_pos == tail_pos(index) ||
       head_pos == tail_right(index) ||
       head_pos == tail_left(index) ||
       head_pos == tail_up(index) ||
@@ -118,9 +135,6 @@ class Map3
       head_pos == tail_diag_up_left(index) ||
       head_pos == tail_diag_down_right(index) ||
       head_pos == tail_diag_down_left(index))
-
-    pp " TAIL: #{tail_pos(index)} VS HEAD: #{head_pos}  VS REELHEAD: #{[@head[:x], @head[:y]]}// STATUS: #{status}"
-
     status
   end
 
@@ -167,18 +181,19 @@ class Map3
   def move_right(value)
     value.times do |_|
       @head[:x] = @head[:x] + 1
-      pp '---------------------------'
+      pp 'R ---------------------------'
       (0 .. 8).each do |index|
         update_tail_position(index) if tail_need_update?(index)
       end
+      pp 'TAILS AFTER UPDATE'
+      #pp @tails
     end
   end
 
   def move_left(value)
     value.times do |_|
       @head[:x] = @head[:x] - 1
-      pp '---------------------------'
-
+      pp 'L ---------------------------'
       (0 .. 8).each do |index|
         update_tail_position(index) if tail_need_update?(index)
       end
@@ -188,17 +203,18 @@ class Map3
   def move_up(value)
     value.times do |_|
       @head[:y] = @head[:y] + 1
-      pp '------------------------------------------'
+      pp 'U ------------------------------------------'
       (0 .. 8).each do |index|
         update_tail_position(index) if tail_need_update?(index)
       end
+      #pp @tails
     end
   end
 
   def move_down(value)
     value.times do |_|
       @head[:y] = @head[:y] - 1
-      pp '---------------------------'
+      pp 'D ---------------------------'
 
       (0 .. 8).each do |index|
         update_tail_position(index) if tail_need_update?(index)
@@ -218,12 +234,12 @@ class Map
   attr_reader :direction, :head, :tail
 
   def initialize(input = nil)
-    @input     = input
-    @head      = { x: 0, y: 0 }
-    @tail      = { x: 0, y: 0 }
-    @maps      = []
-    @coords    = []
-    @cursor    = { x: 0, y: 0 }
+    @input = input
+    @head = { x: 0, y: 0 }
+    @tail = { x: 0, y: 0 }
+    @maps = []
+    @coords = []
+    @cursor = { x: 0, y: 0 }
     @direction = nil
 
     add_coord(@tail.clone)
@@ -468,6 +484,7 @@ class Hash
   end
 end
 
-App.new.rope_1
+#App.new.rope_1
+App.new.rope_2
 
 

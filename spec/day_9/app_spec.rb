@@ -143,28 +143,29 @@ describe App do
       expect(m.head[:y]).to eq 2
     end
 
-    it'test R4 U5' do
+    it'test R2 U2' do
       input = ["R 2", "U 2"]
       m = Map3.new(input).process
-      pp m.head
-      pp m.tails
-      expect(m.tails[0][:x]).to eq 4
-      expect(m.tails[0][:y]).to eq 4
-
-      pp m.tails
-      expect(m.tails[1][:x]).to eq 4
-      expect(m.tails[1][:y]).to eq 3
-
-      expect(m.head[:x]).to eq 4
-      expect(m.head[:y]).to eq 5
+      expect(m.head).to eq({x:2, y:2})
+      expect(m.tails[0]).to eq({x:2, y:1})
+      expect(m.tails[1]).to eq({x:1, y:1})
     end
 
     it'test R10 U10' do
-      input = ["R 9","U 10"]
+      data = "R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20"
+      input = data.split("\n")
       m = Map3.new(input).process
-      pp 'm.coords.size'
-      pp m.coords.size
+      pp '--------------------------'
       pp m.tails
+      pp m.coords.size
+      pp '--------------------------'
     end
   end
 end
