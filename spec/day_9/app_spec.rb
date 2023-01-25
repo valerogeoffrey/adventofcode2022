@@ -105,39 +105,58 @@ describe App do
   describe 'map2' do
     it'test R2' do
       input = ["R 2"]
-      m = Map2.new(input).process
+      m = Map3.new(input).process
       expect(m.tails[0][:x]).to eq 1
-      expect(m.tailsprev[0][:x]).to eq 0
     end
 
     it'test R3' do
       input = ["R 3"]
-      m = Map2.new(input).process
+      m = Map3.new(input).process
       expect(m.tails[0][:x]).to eq 2
-      expect(m.tailsprev[0][:x]).to eq 1
     end
 
     it'test R4' do
       input = ["R 4"]
-      m = Map2.new(input).process
+      m = Map3.new(input).process
       expect(m.tails[0][:x]).to eq 3
-      expect(m.tailsprev[0][:x]).to eq 2
-
       expect(m.tails[1][:x]).to eq 2
-      expect(m.tailsprev[1][:x]).to eq 1
-
       expect(m.tails[2][:x]).to eq 1
-      expect(m.tailsprev[2][:x]).to eq 0
     end
 
     it'test R4 U1' do
       input = ["R 4", "U 1"]
-      m = Map2.new(input).process
-      expect(m.tails[0][:x]).to eq 4
+      m = Map3.new(input).process
+      expect(m.tails[0][:x]).to eq 3
       expect(m.tails[0][:y]).to eq 0
 
       expect(m.head[:x]).to eq 4
       expect(m.head[:y]).to eq 1
+    end
+
+    it'test R4 U2' do
+      input = ["R 4", "U 2"]
+      m = Map3.new(input).process
+      expect(m.tails[0][:x]).to eq 4
+      expect(m.tails[0][:y]).to eq 1
+
+      expect(m.head[:x]).to eq 4
+      expect(m.head[:y]).to eq 2
+    end
+
+    it'test R4 U5' do
+      input = ["R 2", "U 2"]
+      m = Map3.new(input).process
+      pp m.head
+      pp m.tails
+      expect(m.tails[0][:x]).to eq 4
+      expect(m.tails[0][:y]).to eq 4
+
+      pp m.tails
+      expect(m.tails[1][:x]).to eq 4
+      expect(m.tails[1][:y]).to eq 3
+
+      expect(m.head[:x]).to eq 4
+      expect(m.head[:y]).to eq 5
     end
 
     it'test R10 U10' do
