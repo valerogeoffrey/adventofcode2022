@@ -51,8 +51,8 @@ class Service
       @monkeys.each do |_, monkey|
         monkey.items.each do |item|
           item.lvl = monkey.operation.call(item.lvl)
-          item.lvl = item.lvl%@divisible.inject(&:*)
-          id = item.lvl%monkey.divisible == 0 ? monkey.monkey_index_true : monkey.monkey_index_false
+          item.lvl = (item.lvl % @divisible.inject(&:*)).round
+          id = item.lvl % monkey.divisible == 0 ? monkey.monkey_index_true : monkey.monkey_index_false
           @monkeys[id].items.push(item)
           monkey.items = monkey.items.drop(1)
           @counters[monkey.id] = {} if @counters[monkey.id].empty?
@@ -119,8 +119,8 @@ class Service
   end
 end
 
-App.new.day111(file:'_full', round:20)
-App.new.day111(file:'', round:10000)
+App.new.day111(file:'', round:20)
+App.new.day111(file:'_full', round:10000)
 #App.new.day112
 
 
